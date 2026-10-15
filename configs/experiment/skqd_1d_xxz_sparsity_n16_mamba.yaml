@@ -1,0 +1,51 @@
+# 1D pure-XXZ sparsity scaling — N=16, Mamba
+# J_zz=1; J_xy is read from the frozen manifest and preserved as the raw graph
+# edge weight (no per-instance min-max normalization).
+
+decoder:
+  type: mamba
+  n_layers: 4
+  d_model: 128
+  n_heads: 4
+  dropout: 0.1
+  d_state: 16
+  d_conv: 4
+  expand: 2
+
+encoder:
+  arch: gcn_proj_3_16
+  gcn_layers: 3
+  gcn_dim: 16
+  features: one_hot
+
+training:
+  iterations: 100
+  lr: 0.001
+  final_lr: 0.0000001
+  weight_decay: 0.0
+  batch_size: 256
+  lr_scheduler: warmup_cosine
+  warmup_frac: 0.05
+  eval_every: 1
+  epoch_mode: true
+
+data:
+  protocol_version: 3
+  task: sqkd
+  lattice: 1d
+  hamiltonian_family: xxz_1d_jxy_sparsity
+  coupling_normalization: none
+  n_qubit: 16
+  krylov_dim: 15
+  train_samples: 1000
+  data_root: ./data/xxz_sparsity_1d/
+  sample_structure: 2
+  num_trotter_steps: 0
+  eval_validation: true
+  eval_test: false
+  delta: 1.0
+  h_z: 0.0
+  sqkd_dt: null
+
+results_dir: ./results/v3_xxz_sparsity_scaling
+seed: 0

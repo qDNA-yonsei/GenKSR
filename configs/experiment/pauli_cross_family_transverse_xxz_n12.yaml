@@ -1,0 +1,61 @@
+experiment_name: pauli_cross_family_transverse_xxz_n12_v1
+
+source_families: [tfim, xxz, xy_staggered_z]
+target_family: transverse_field_xxz
+
+data:
+  n_qubit: 12
+  depth: 8
+  train_shots_per_condition: 500
+  source_train_per_family: 64
+  source_holdout_per_family: 8
+  target_test_hamiltonians: 32
+  coefficient_range: [0.5, 1.5]
+  master_seed: 20260802
+
+model:
+  d_model: 128
+  decoder_layers: 4
+  decoder_heads: 4
+  encoder_layers: 2
+  encoder_heads: 4
+  symbol_dim: 16
+  dropout: 0.1
+  encoder_mode: coefficient_sum
+
+training:
+  epochs: 100
+  batch_size: 4096
+  lr: 0.001
+  final_lr: 0.0000001
+  warmup_fraction: 0.05
+  weight_decay: 0.0
+  gradient_clip: null
+  checkpoint_every: 5
+  data_loader_workers: 0
+
+evaluation:
+  enumeration_batch_size: 512
+  sample_budgets: [10, 25, 50, 100, 250]
+  sampling_repeats: 10
+  comparison_seed: 20260812
+  # B_X breaks computational-basis Hamming-weight conservation.
+  random_baselines: [uniform_full]
+  known_initial_state_once: true
+
+smoke:
+  data:
+    n_qubit: 6
+    depth: 3
+    train_shots_per_condition: 20
+    source_train_per_family: 2
+    source_holdout_per_family: 1
+    target_test_hamiltonians: 2
+  training:
+    epochs: 1
+    batch_size: 64
+    checkpoint_every: 1
+  evaluation:
+    enumeration_batch_size: 128
+    sample_budgets: [2, 5]
+    sampling_repeats: 2

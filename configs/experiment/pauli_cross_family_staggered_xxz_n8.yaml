@@ -1,0 +1,58 @@
+experiment_name: pauli_cross_family_staggered_xxz_n8_v1
+
+source_families: [tfim, xxz, xy_staggered_z]
+target_family: staggered_field_xxz
+
+data:
+  n_qubit: 8
+  depth: 8
+  train_shots_per_condition: 500
+  source_train_per_family: 64
+  source_holdout_per_family: 32
+  target_test_hamiltonians: 64
+  coefficient_range: [0.5, 1.5]
+  master_seed: 20260802
+
+model:
+  d_model: 128
+  decoder_layers: 4
+  decoder_heads: 4
+  encoder_layers: 2
+  encoder_heads: 4
+  symbol_dim: 16
+  dropout: 0.1
+  encoder_mode: coefficient_sum
+
+training:
+  epochs: 100
+  # Fixed from the hardware-only benchmark performed before formal training.
+  batch_size: 4096
+  lr: 0.001
+  final_lr: 0.0000001
+  warmup_fraction: 0.05
+  weight_decay: 0.0
+  gradient_clip: null
+  checkpoint_every: 5
+  data_loader_workers: 0
+
+evaluation:
+  enumeration_batch_size: 512
+  sample_budgets: [50, 100, 250]
+  sampling_repeats: 20
+
+smoke:
+  data:
+    n_qubit: 6
+    depth: 3
+    train_shots_per_condition: 100
+    source_train_per_family: 4
+    source_holdout_per_family: 2
+    target_test_hamiltonians: 4
+  training:
+    epochs: 2
+    batch_size: 128
+    checkpoint_every: 1
+  evaluation:
+    enumeration_batch_size: 128
+    sample_budgets: [20]
+    sampling_repeats: 2

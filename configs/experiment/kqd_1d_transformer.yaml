@@ -1,0 +1,35 @@
+# Experiment 4.1 — 1D Heisenberg KQD, Transformer backbone (Figure 2 / Table 1)
+#
+# H(x) = Σ_<i,j> x_ij (X_iX_j + Y_iY_j + Z_iZ_j),  x_ij ~ U[0, 2].
+# Trained on Krylov dims D <= 5 (krylov_dim), evaluated up to D = 15.
+#
+# Self-contained: configs/defaults.yaml is layered underneath automatically; this file lists
+# the run-defining values explicitly so `python scripts/train.py --config <this>` needs NO CLI.
+# For the 5 / 10 / 15-qubit sweep, change ONLY data.n_qubit (data must exist for that size).
+
+decoder:
+  type: transformer
+  n_layers: 4
+  d_model: 128
+  n_heads: 4
+
+encoder:
+  arch: gcn_proj_3_16
+  gcn_layers: 3
+  gcn_dim: 16
+
+data:
+  task: kqd
+  lattice: 1d
+  n_qubit: 15              # this reproduction run; set 5 or 10 for the sweep
+  krylov_dim: 5            # train on D <= 5
+  train_samples: 10000     # = shot count (paper trains on ALL shots: 30 Ham x 5 D x 10000 = 1.5M)
+  data_root: ./data/heisenberg/
+
+training:
+  iterations: 40           # ~4.5h on this shared machine; each epoch sees 1.5M samples
+  lr: 0.001
+  batch_size: 256
+  lr_scheduler: warmup_cosine
+  warmup_frac: 0.05
+  final_lr: 0.0000001

@@ -1,0 +1,44 @@
+# Additional experiment — 2D J1-J2 Heisenberg KQD, Mamba backbone.
+#
+# This ports the legacy 2D KQD run:
+#   data root: ./data/heisenberg_KQD_2d/
+#   model: gcn_encoder_3_256 + Mamba, 8 layers, d_model=256
+#   train samples: 10000 per Hamiltonian per Krylov data file
+#   train Krylov files: D0..D9 (data.krylov_dim=10), evaluate up to D=15.
+#   epochs: 40 keeps the total update budget close to the legacy 1000-shot/400-epoch run.
+#
+# Requires CUDA + mamba-ssm. For a stricter paper-like extrapolation protocol,
+# override `--data.krylov_dim 5`.
+
+decoder:
+  type: mamba
+  n_layers: 8
+  d_model: 256
+  d_state: 16
+  d_conv: 4
+  expand: 2
+  dropout: 0.1
+
+encoder:
+  arch: gcn_encoder_3_256
+  gcn_layers: 3
+  gcn_dim: 256
+  features: one_hot
+
+data:
+  task: kqd
+  lattice: 2d
+  n_qubit: 16
+  krylov_dim: 10
+  train_samples: 10000
+  data_root: ./data/heisenberg_KQD_2d/
+  sample_structure: 2
+  num_trotter_steps: 6
+
+training:
+  iterations: 40
+  lr: 0.001
+  batch_size: 256
+  lr_scheduler: warmup_cosine
+  warmup_frac: 0.05
+  final_lr: 0.0000001

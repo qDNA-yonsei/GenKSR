@@ -1,0 +1,30 @@
+# Experiment 4.2 — 2D J1-J2 Heisenberg SKQD, Transformer backbone (Figure 3 / Table 2)
+# H = J1 Σ_<r,r'> S·S + J2 Σ_<<r,r'>> S·S  on a 4x4 torus (16 qubits),  J1 = 1, J2 ~ U[0, 1]
+# Trained on Krylov dims D <= 15, extrapolated to D = 30 at sampling/evaluation.
+#
+# Hyperparameters follow paper Table 4 (d_model=128, 4 layers, 4 heads, GCN dim 16).
+# NOTE: the original 2D SKQD runs used a larger model (d_model=256, 8 layers, 8 heads,
+# gcn_encoder_3_256). To reproduce that "as-run" setting instead, override on the CLI:
+#   --decoder.d_model 256 --decoder.n_layers 8 --decoder.n_heads 8 \
+#   --encoder.arch gcn_encoder_3_256 --encoder.gcn_dim 256
+
+decoder:
+  type: transformer
+  n_layers: 4
+  d_model: 128
+  n_heads: 4
+
+encoder:
+  arch: gcn_proj_3_16
+  gcn_layers: 3
+  gcn_dim: 16
+
+data:
+  task: sqkd
+  lattice: 2d
+  n_qubit: 16
+  krylov_dim: 15
+  train_samples: 1000
+  data_root: ./data/heisenberg_SQKD_2d/
+  delta: 1.0
+  h_z: 0.0

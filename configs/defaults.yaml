@@ -1,0 +1,54 @@
+# GenKSR v3 — default configuration (paper Table 4 hyperparameters)
+#
+# These shared defaults match Table 4 of the GenKSR paper:
+#   d_model=128, layers=4, dropout=0.1, GCN 3 layers dim 16,
+#   Adam lr=1e-3, warmup-cosine (5% warmup, final 1e-7), batch size 256.
+#   Transformer: 4 heads (head dim 32). Mamba: d_state=16, d_conv=4, expand=2.
+# Experiment configs under configs/experiment/ override only what differs.
+
+encoder:
+  arch: gcn_proj_3_16      # GCN 3 layers, dim 16, projected to d_model (Table 4)
+  gcn_layers: 3
+  gcn_dim: 16
+  features: one_hot
+
+decoder:
+  type: transformer        # 'transformer' or 'mamba'
+  n_layers: 4
+  d_model: 128
+  n_heads: 4               # head dim = 128 / 4 = 32
+  dropout: 0.1
+  d_state: 16              # Mamba only
+  d_conv: 4                # Mamba only
+  expand: 2                # Mamba only
+
+training:
+  lr: 0.001
+  final_lr: 0.0000001      # 1e-7
+  weight_decay: 0.0
+  batch_size: 256
+  iterations: 100
+  lr_scheduler: warmup_cosine
+  warmup_frac: 0.05
+  eval_every: 1
+  epoch_mode: true
+
+data:
+  protocol_version: 3       # incompatible with v2 datasets/checkpoints
+  task: kqd                # 'kqd' (Sec 4.1) or 'sqkd' (Sec 4.2)
+  lattice: 1d              # '1d' or '2d'
+  n_qubit: 15
+  krylov_dim: 5            # number of stored D indices used for training
+  train_samples: 10000
+  data_root: ./data/heisenberg/
+  sample_structure: 2
+  num_trotter_steps: 6     # circuit approximation only; does not rescale physical time
+  hamiltonian_family: canonical
+  coupling_normalization: per_instance_minmax
+  eval_validation: false
+  eval_test: false
+  delta: 1.0               # XXZ anisotropy (1.0 = isotropic Heisenberg)
+  h_z: 0.0                 # external field along Z
+
+results_dir: ./results
+seed: 0
